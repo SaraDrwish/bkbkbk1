@@ -1,4 +1,3 @@
-// examMiddleware.js for Exams feature
 const Joi = require('joi');
 
 const examValidation = Joi.object({
