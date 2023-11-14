@@ -1,8 +1,7 @@
+ 
 const asynchandler = require('../Middleware/asynchandler');
 const Exam = require('../Models/examModel');
-const fs = require('fs/promises');
-const path = require('path');
-
+const fileUploadService = require('../Services/fileUploadService');
 const uploadDirectory = 'uploads/';
 
 const examController = {
@@ -11,7 +10,7 @@ const examController = {
         const newExam = new Exam({ courseName, date, duration, link });
 
         if (req.file) {
-            const photoFileName = req.file.filename;
+            const photoFileName = await fileUploadService.uploadFile(req.file);
             newExam.photo = photoFileName;
         }
 
@@ -24,7 +23,7 @@ const examController = {
         const updatedFields = req.body;
 
         if (req.file) {
-            const photoFileName = req.file.filename;
+            const photoFileName = await fileUploadService.uploadFile(req.file);
             updatedFields.photo = photoFileName;
         }
 
@@ -41,33 +40,12 @@ const examController = {
         }
 
         if (exam.photo) {
-            const photoPath = path.join(__dirname, '..', uploadDirectory, exam.photo);
-
-            await fs.unlink(photoPath);
-
+            await fileUploadService.deleteFile(exam.photo);
             exam.photo = null;
             await exam.save();
         }
 
         res.json({ message: 'Exam photo deleted successfully' });
-    }),
- 
-
-    // ///////////////////
-
-
-    createExam: asynchandler(async (req, res) => {
-        const { courseName, date, duration, link } = req.body;
-        const newExam = new Exam({ courseName, date, duration, link });
-        const savedExam = await newExam.save();
-        res.json(savedExam);
-    }),
-
-    updateExam: asynchandler(async (req, res) => {
-        const { examId } = req.params;
-        const updatedFields = req.body;
-        const updatedExam = await Exam.findByIdAndUpdate(examId, updatedFields, { new: true });
-        res.json(updatedExam);
     }),
 
      getExamById: asynchandler(async (req, res) => {
@@ -92,6 +70,45 @@ const examController = {
         const exams = await Exam.find();
         res.json(exams);
     }),
+
+
+     updateExamPhoto: asynchandler(async (req, res) => {
+        const { examId } = req.params;
+        const exam = await Exam.findById(examId);
+
+        if (!exam) {
+            return res.status(404).json({ error: 'Exam not found' });
+        }
+
+        if (req.file) {
+            const updatedPhotoName = await fileUploadService.uploadFile(req.file);
+            if (exam.photo) {
+                await fileUploadService.deleteFile(exam.photo);
+            }
+            exam.photo = updatedPhotoName;
+        }
+
+        const updatedExam = await exam.save();
+        res.json(updatedExam);
+    }),
+
+    deleteExamPhoto: asynchandler(async (req, res) => {
+        const { examId } = req.params;
+        const exam = await Exam.findById(examId);
+
+        if (!exam) {
+            return res.status(404).json({ error: 'Exam not found' });
+        }
+
+        if (exam.photo) {
+            await fileUploadService.deleteFile(exam.photo);
+            exam.photo = null;
+            await exam.save();
+        }
+
+        res.json({ message: 'Exam photo deleted successfully' });
+    }),
+
 
 
  };
