@@ -1,13 +1,17 @@
-// examRouter.js for Exams feature
 const express = require('express');
-const router = express.Router();
+const multer = require('multer');
+const examValidator = require('../Middleware/examValidator');
 const examController = require('../Controllers/examController');
-const examMiddleware = require('../Middleware/examMiddleware');
 
-router.post('/create', examMiddleware.validateExam, examController.createExam);
-router.put('/update/:examId', examController.updateExam);
-router.delete('/delete/:examId', examController.deleteExam);
-router.get('/all', examController.getAllExams);
-router.get('/:examId', examController.getExamById);
+const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
+
+router.post('/exams', upload.single('photo'), examValidator.validateCreateExam, examController.createExam);
+
+router.patch('/exams/:examId', upload.single('photo'), examValidator.validateUpdateExam, examController.updateExam);
+
+router.delete('/exams/:examId/photo', examController.deleteExamPhoto);
+
 
 module.exports = router;
+

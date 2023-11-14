@@ -1,47 +1,42 @@
-const Exam = require('../models/examModel');
+const Exam = require('../Models/examModel');
 
 const examService = {
-    createExam: async (courseName, date, duration, link) => {
+    createExam: (courseName, date, duration, link) => {
         try {
             const newExam = new Exam({ courseName, date, duration, link });
-            const savedExam = await newExam.save();
-            return savedExam;
+            return newExam.saveSync();  
         } catch (err) {
             throw new Error('Could not create exam');
         }
     },
 
-    updateExam: async (examId, updatedFields) => {
+    updateExam: (examId, updatedFields) => {
         try {
-            const updatedExam = await Exam.findByIdAndUpdate(examId, updatedFields, { new: true });
-            return updatedExam;
+            return Exam.findByIdAndUpdateSync(examId, updatedFields, { new: true });  
         } catch (err) {
             throw new Error('Could not update exam');
         }
     },
 
-    deleteExam: async (examId) => {
+    deleteExam: (examId) => {
         try {
-            const deletedExam = await Exam.findByIdAndDelete(examId);
-            return deletedExam;
+            return Exam.findByIdAndDeleteSync(examId);  
         } catch (err) {
             throw new Error('Could not delete exam');
         }
     },
 
-    getAllExams: async () => {
+    getAllExams: () => {
         try {
-            const exams = await Exam.find();
-            return exams;
+            return Exam.findSync();  
         } catch (err) {
             throw new Error('Could not get all exams');
         }
     },
 
-    getExamById: async (examId) => {
+    getExamById: (examId) => {
         try {
-            const exam = await Exam.findById(examId);
-            return exam;
+            return Exam.findByIdSync(examId);  
         } catch (err) {
             throw new Error('Could not get exam by ID');
         }
