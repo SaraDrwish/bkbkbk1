@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+courseSchema.pre('findOneAndUpdate', deleteUploadedFile);
 
-const examSchema = new mongoose.Schema({
+ const examSchema = new mongoose.Schema({
     courseName: String,
     date: Date,
     duration: String,

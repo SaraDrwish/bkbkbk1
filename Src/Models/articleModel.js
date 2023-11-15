@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+  
 const articleSchema = new mongoose.Schema({
     title: String,
     category: String,
